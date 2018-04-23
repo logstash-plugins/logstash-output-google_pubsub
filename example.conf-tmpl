@@ -1,0 +1,91 @@
+# Copyright 2016 Google Inc.
+# Sample file niravshah2705
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input {
+   file {
+    path => "/var/log/*.log"
+    sincedb_path => "/etc/logstash/data/sincedb_pubsub"
+    start_position => "beginning"
+  }
+}
+
+# For a more real world example, use the following input and filter stanzas
+# for processing the Apache access log.
+#   - Source: https://qbox.io/blog/elasticsearch-logstash-kibana-apache-logs
+#input {
+#  file {
+#    path => "/var/log/apache2/access.log"
+#    type => "apache_access"
+#  }
+#}
+#
+#filter {
+#  grok {
+#     match => [
+#     "message" , "%{COMBINEDAPACHELOG}+%{GREEDYDATA:extra_fields}",
+#     "message" , "%{COMMONAPACHELOG}+%{GREEDYDATA:extra_fields}"
+#     ]
+#     overwrite => [ "message" ]
+#  }
+#  mutate {
+#     convert => ["response", "integer"]
+#     convert => ["bytes", "integer"]
+#     convert => ["responsetime", "float"]
+#  }
+#  date {
+#     match => [ "timestamp" , "dd/MMM/YYYY:HH:mm:ss Z" ]
+#     remove_field => [ "timestamp" ]
+#  }
+#  useragent {
+#     source => "agent"
+#  }
+#}
+
+output {
+	google_pubsub {
+
+# Your GCP project id (name)
+		project_id => "premium-poc"
+
+# The topic name below is currently hard-coded in the plugin. You
+# must first create this topic by hand before attempting to output
+# messages to Google Pubsub.
+#		topic => "pubsub-output-plugin-topic"
+# Dynamic topic also supported based on the field in message or logstash tags
+             	topic => "%{topic}"
+
+# If defined Only content of field passed as message. exclude_fields & include_fields ignored
+		include_field =>  "message"  
+
+# Exclude list takes precedence over include list
+		exclude_fields => [ "@version" , "filename" , "tags" ]
+
+# Only mentioned field passed in json format with key
+		include_fields => [ "message" ]
+
+# Set number of retries to avoid loss due to transient issues.
+# Setting value to 0 does not retry. Default value set as 1
+		retry => 2
+
+# If you are running logstash within GCE, it will use
+# Application Default Credentials and use GCE's metadata
+# service to fetch tokens.  However, if you are running logstash
+# outside of GCE, you will need to specify the service account's
+# JSON key file below.
+
+#		json_key_file => "/home/nirav/Downloads/Premium-POC-5837fe4cfb8f.json"
+		}
+
+}
