@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.homepage      = 'https://cloud.google.com/pubsub/overview'
   s.authors       = ['Eric Johnson']
   s.email         = 'erjohnso@google.com'
-  s.require_paths = ['lib']
+  s.require_paths = ['lib', 'vendor/jar-dependencies']
 
   # Files
   s.files = Dir['lib/**/*','spec/**/*','*.gemspec','*.md','CONTRIBUTORS','Gemfile','LICENSE',
@@ -28,10 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'logstash-devutils', '~> 1.3'
 
   # JARs
-  s.requirements << "jar 'com.google.cloud:google-cloud-pubsub', '0.43.0-beta'"
-
   s.add_development_dependency 'jar-dependencies', '~> 0.3.4'
-  s.add_development_dependency 'ruby-maven', '~> 3.3.11'
 
   s.platform = 'java'
 end

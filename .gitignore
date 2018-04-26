@@ -29,6 +29,8 @@ build/
 /doc/
 /rdoc/
 *.log
+.gradle
+vendor/
 
 ## Environment normalization:
 /.bundle/
