@@ -29,7 +29,7 @@ dependencies {
     compile "com.google.cloud:google-cloud-core-grpc:1.25.0"
     compile "com.google.code.findbugs:jsr305:3.0.1"
     compile "com.google.code.gson:gson:2.7"
-    compile "com.google.errorprone:error_prone_annotations:2.1.2"
+    compile "com.google.errorprone:error_prone_annotations:2.2.0"
     compile "com.google.guava:guava:20.0"
     compile "com.google.http-client:google-http-client:1.23.0"
     compile "com.google.http-client:google-http-client-jackson2:1.19.0"
