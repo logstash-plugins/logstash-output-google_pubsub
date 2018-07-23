@@ -58,3 +58,24 @@ output {
   }
 }
 ------------------------------------------------------------------------------
+
+
+====== Different Codecs
+
+You can use codecs with this plugin to change the body of the events:
+
+[source,ruby]
+------------------------------------------------------------------------------
+output {
+  google_pubsub {
+    project_id => "my_project"
+    topic => "my_topic"
+    json_key_file => "service_account_key.json"
+
+
+    codec => plain {format => "%{[time]}: %{[message]}"}
+  }
+}
+------------------------------------------------------------------------------
+
+
