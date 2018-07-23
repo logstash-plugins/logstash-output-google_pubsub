@@ -44,7 +44,7 @@ module LogStash
         def build_message(message_string, attributes)
           attributes ||= {}
 
-          data = com.google.protobuf.ByteString.copyFromUtf8 message_string
+          data = com.google.protobuf.ByteString.copyFromUtf8(message_string)
           builder = com.google.pubsub.v1.PubsubMessage.newBuilder
                        .setData(data)
 
@@ -56,9 +56,9 @@ module LogStash
         # Creates a PubsubMessage from the string and attributes
         # then queues it up to be sent.
         def publish_message(message_string, attributes)
-          message = build_message message_string, attributes
-          messageIdFuture = @pubsub.publish message
-          setup_callback message_string, messageIdFuture
+          message = build_message(message_string, attributes)
+          messageIdFuture = @pubsub.publish(message)
+          setup_callback(message_string, messageIdFuture)
         end
 
         # Sets up the Google pubsub client.
@@ -70,11 +70,11 @@ module LogStash
           if use_default_credential? json_key_file
             credentials = com.google.cloud.pubsub.v1.TopicAdminSettings.defaultCredentialsProviderBuilder().build()
           else
-            raise_key_file_error json_key_file
+            raise_key_file_error(json_key_file)
 
-            key_file = java.io.FileInputStream.new json_key_file
-            sac = com.google.auth.oauth2.ServiceAccountCredentials.fromStream key_file
-            credentials = com.google.api.gax.core.FixedCredentialsProvider.create sac
+            key_file = java.io.FileInputStream.new(json_key_file)
+            sac = com.google.auth.oauth2.ServiceAccountCredentials.fromStream(key_file)
+            credentials = com.google.api.gax.core.FixedCredentialsProvider.create(sac)
           end
 
           com.google.cloud.pubsub.v1.Publisher.newBuilder(topic_name)
@@ -100,8 +100,7 @@ module LogStash
 
         def construct_headers
           gem_name = 'logstash-output-google_pubsub'
-          gem_version = '1.0.0'
-          user_agent = "Elastic/#{gem_name} version/#{gem_version}"
+          user_agent = "Elastic/#{gem_name}"
 
           com.google.api.gax.rpc.FixedHeaderProvider.create('User-Agent', user_agent)
         end

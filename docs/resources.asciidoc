@@ -1,0 +1,6 @@
+==== Additional Resources
+
+ * https://cloud.google.com/pubsub/[Cloud Pub/Sub Homepage]
+ * https://cloud.google.com/pubsub/pricing-summary/[Cloud Pub/Sub Pricing]
+ * https://cloud.google.com/iam/docs/service-accounts[IAM Service Accounts]
+ * https://cloud.google.com/docs/authentication/production[Application Default Credentials]

@@ -52,26 +52,22 @@ describe LogStash::Outputs::GooglePubsub do
     subject.register
   end
 
-
-  describe '#receive' do
-    it 'sends the message as JSON text' do
-      allow(pubsub_client).to receive(:publish_message)
+  describe '#multi_receive_encoded' do
+    it 'sends the message as JSON text by default' do
       expect(pubsub_client).to receive(:publish_message).with(/"key":"value"/, anything)
 
-      subject.receive sample_event
+      subject.multi_receive([sample_event])
     end
 
     it 'sends attributes' do
-      allow(pubsub_client).to receive(:publish_message)
       expect(pubsub_client).to receive(:publish_message).with(anything, config['attributes'])
 
-      subject.receive sample_event
+      subject.multi_receive([sample_event])
     end
   end
 
   describe '#stop' do
     it 'calls shutdown on the pubsub client' do
-      allow(pubsub_client).to receive(:shutdown)
       expect(pubsub_client).to receive(:shutdown)
 
       subject.stop

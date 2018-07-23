@@ -1,9 +1,16 @@
 # Logstash Output Google Pubsub
 
-This is a [Logstash](https://github.com/elastic/logstash) plugin that forwards events to
-[Google Cloud Pubsub](https://cloud.google.com/pubsub/).
+A LogStash plugin to upload log events to https://cloud.google.com/pubsub/[Google Cloud Pubsub].
+Events are batched and uploaded in the background for the sake of efficiency.
+Message payloads are serialized JSON representations of the events.
 
-This is not an official Google product
+Example use-cases:
+
+ * Stream events to Dataproc via Pub/Sub for real-time analysis.
+ * Forward events from an on-prem datacenter to the LogStash in the cloud.
+ * Use Pub/Sub as an scalable buffer to even out event flow between processing steps.
+
+Note: While this project is partially maintained by Google, this is not an official Google product.
 
 ## Documentation
 
@@ -28,7 +35,7 @@ Need help? Try #logstash on freenode IRC or the https://discuss.elastic.co/c/log
 - Install dependencies
 ```sh
 bundle install
-bundle exec rake install_jars
+bundle exec rake vendor
 ```
 
 #### Test
@@ -37,7 +44,7 @@ bundle exec rake install_jars
 
 ```sh
 bundle install
-bundle exec rake install_jars
+bundle exec rake vendor
 ```
 
 - Run tests

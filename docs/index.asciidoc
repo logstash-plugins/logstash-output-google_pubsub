@@ -1,0 +1,51 @@
+:plugin: google_pubsub
+:type: output
+:default_codec: plain
+
+///////////////////////////////////////////
+START - GENERATED VARIABLES, DO NOT EDIT!
+///////////////////////////////////////////
+:version: %VERSION%
+:release_date: %RELEASE_DATE%
+:changelog_url: %CHANGELOG_URL%
+:include_path: ../../../../logstash/docs/include
+///////////////////////////////////////////
+END - GENERATED VARIABLES, DO NOT EDIT!
+///////////////////////////////////////////
+
+[id="plugins-{type}s-{plugin}"]
+
+=== Google Cloud Pub/Sub Output Plugin
+
+include::{include_path}/plugin_header.asciidoc[]
+
+==== Description
+
+A LogStash plugin to upload log events to https://cloud.google.com/pubsub/[Google Cloud Pubsub].
+Events are batched and uploaded in the background for the sake of efficiency.
+Message payloads are serialized JSON representations of the events.
+
+Example use-cases:
+
+ * Stream events to Dataproc via Pub/Sub for real-time analysis.
+ * Forward events from an on-prem datacenter to the LogStash in the cloud.
+ * Use Pub/Sub as an scalable buffer to even out event flow between processing steps.
+
+Note: While this project is partially maintained by Google, this is not an official Google product.
+
+=== Environment Configuration
+
+To use this plugin, you must create a
+https://developers.google.com/storage/docs/authentication#service_accounts[service account]
+and grant it the publish permission on a topic.
+You MAY also use the https://cloud.google.com/docs/authentication/production[Application Default Credentials]
+assigned to a compute instance.
+
+The Pub/Sub topic __must__ exist before you run the plugin.
+
+
+include::examples.asciidoc[]
+
+include::resources.asciidoc[]
+
+include::configuration.asciidoc[]

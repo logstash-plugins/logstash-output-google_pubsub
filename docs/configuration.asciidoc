@@ -1,0 +1,95 @@
+[id="plugins-{type}s-{plugin}-options"]
+==== Google Cloud Pub/Sub Output Configuration Options
+
+This plugin supports the following configuration options plus the <<plugins-{type}s-{plugin}-common-options>> described later.
+
+[cols="<,<,<",options="header",]
+|=======================================================================
+|Setting |Input type|Required
+| <<plugins-{type}s-{plugin}-project_id>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-topic>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-json_key_file>> |<<path,path>>|No
+| <<plugins-{type}s-{plugin}-delay_threshold_secs>> |<<number,number>>|No
+| <<plugins-{type}s-{plugin}-message_count_threshold>> |<<number,number>>|No
+| <<plugins-{type}s-{plugin}-request_byte_threshold>> |<<bytes,bytes>>|No
+| <<plugins-{type}s-{plugin}-attributes>> |<<hash,hash>>|No
+|=======================================================================
+
+Also see <<plugins-{type}s-{plugin}-common-options>> for a list of options supported by all
+input plugins.
+
+[id="plugins-{type}s-{plugin}-project_id"]
+===== `project_id`
+
+  * Value type is <<string,string>>
+  * There is no default value for this setting.
+
+Google Cloud Project ID (name, not number).
+
+[id="plugins-{type}s-{plugin}-topic"]
+===== `topic`
+
+  * Value type is <<string,string>>
+  * There is no default value for this setting.
+
+Google Cloud Pub/Sub Topic. You must create the topic manually before running this plugin.
+
+[id="plugins-{type}s-{plugin}-json_key_file"]
+===== `json_key_file`
+
+  * Value type is <<path,path>>
+  * There is no default value for this setting.
+
+The path to the key to authenticate your user to the bucket.
+This service user _must_ have the `pubsub.topics.publish` permission so it can publish to the topic.
+
+
+If Logstash is running within Google Compute Engine and no `json_key_file` is defined,
+the plugin will use GCE's Application Default Credentials.
+Outside of GCE, you must to specify a Service Account JSON key file.
+
+
+[id="plugins-{type}s-{plugin}-delay_threshold_secs"]
+===== `delay_threshold_secs`
+
+  * Value type is <<number,number>>
+  * Default is: `5`
+
+Send the batch once this delay has passed, from the time the first message is queued.
+Must be greater than 0.
+
+
+[id="plugins-{type}s-{plugin}-message_count_threshold"]
+===== `message_count_threshold`
+
+  * Value type is <<number,number>>
+  * Default is: `100`
+
+Once this many messages are queued, send all the messages in a single call, even if the delay threshold hasn't elapsed yet.
+Must be < 1000.
+A value of 0 will cause messages to instantly be sent but will reduce total throughput due to overhead.
+
+[id="plugins-{type}s-{plugin}-request_byte_threshold"]
+===== `request_byte_threshold`
+
+  * Value type is <<bytes,bytes>>
+  * Default is: `1_000_000`
+
+Once the number of bytes in the batched request reaches this threshold, send all of the messages in
+a single call, even if neither the delay or message count thresholds have been exceeded yet.
+This includes full message payload size, including any attributes set.
+
+
+[id="plugins-{type}s-{plugin}-attributes"]
+===== `attributes`
+
+  * Value type is <<hash,hash>>
+  * Default is: `{}`
+
+Attributes to add to the message in key: value formats.
+Keys and values MUST be strings.
+
+[id="plugins-{type}s-{plugin}-common-options"]
+include::{include_path}/{type}.asciidoc[]
+
+:default_codec!:
