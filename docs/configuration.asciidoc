@@ -92,4 +92,4 @@ Keys and values MUST be strings.
 [id="plugins-{type}s-{plugin}-common-options"]
 include::{include_path}/{type}.asciidoc[]
 
-:default_codec!:
+:default_codec!: json
