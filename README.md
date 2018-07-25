@@ -1,13 +1,13 @@
 # Logstash Output Google Pubsub
 
-A LogStash plugin to upload log events to https://cloud.google.com/pubsub/[Google Cloud Pubsub].
+A Logstash plugin to upload log events to https://cloud.google.com/pubsub/[Google Cloud Pubsub].
 Events are batched and uploaded in the background for the sake of efficiency.
 Message payloads are serialized JSON representations of the events.
 
 Example use-cases:
 
  * Stream events to Dataproc via Pub/Sub for real-time analysis.
- * Forward events from an on-prem datacenter to the LogStash in the cloud.
+ * Forward events from an on-prem datacenter to the Logstash in the cloud.
  * Use Pub/Sub as an scalable buffer to even out event flow between processing steps.
 
 Note: While this project is partially maintained by Google, this is not an official Google product.
