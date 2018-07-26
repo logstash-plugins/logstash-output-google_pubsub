@@ -1,6 +1,6 @@
 :plugin: google_pubsub
 :type: output
-:default_codec: plain
+:default_codec: json
 
 ///////////////////////////////////////////
 START - GENERATED VARIABLES, DO NOT EDIT!
@@ -33,7 +33,7 @@ Example use-cases:
 
 Note: While this project is partially maintained by Google, this is not an official Google product.
 
-=== Environment Configuration
+==== Environment Configuration
 
 To use this plugin, you must create a
 https://developers.google.com/storage/docs/authentication#service_accounts[service account]
@@ -106,7 +106,7 @@ output {
 ------------------------------------------------------------------------------
 
 
-====== Different Codecs
+===== Different Codecs
 
 You can use codecs with this plugin to change the body of the events:
 
@@ -228,4 +228,4 @@ Keys and values MUST be strings.
 [id="plugins-{type}s-{plugin}-common-options"]
 include::{include_path}/{type}.asciidoc[]
 
-:default_codec!: json
+:default_codec!:
