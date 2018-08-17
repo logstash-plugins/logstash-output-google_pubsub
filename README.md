@@ -1,6 +1,6 @@
 # Logstash Output Google Pubsub
 
-A Logstash plugin to upload log events to https://cloud.google.com/pubsub/[Google Cloud Pubsub].
+A Logstash plugin to upload log events to [Google Cloud Pub/Sub](https://cloud.google.com/pubsub/).
 Events are batched and uploaded in the background for the sake of efficiency.
 Message payloads are serialized JSON representations of the events.
 
