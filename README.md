@@ -1,3 +1,7 @@
+[![Gem Version](https://badge.fury.io/rb/logstash-output-google_pubsub.svg)](https://badge.fury.io/rb/logstash-output-google_pubsub)
+[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-output-google_pubsub.svg)](https://travis-ci.org/logstash-plugins/logstash-output-google_pubsub)
+
+
 # Logstash Output Google Pubsub
 
 A Logstash plugin to upload log events to [Google Cloud Pub/Sub](https://cloud.google.com/pubsub/).
