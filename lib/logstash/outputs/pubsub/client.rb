@@ -1,6 +1,5 @@
 require 'java'
 require 'logstash-output-google_pubsub_jars.rb'
-require 'logstash/outputs/pubsub/message_future_callback'
 
 module LogStash
   module Outputs
@@ -41,8 +40,7 @@ module LogStash
         # then queues it up to be sent.
         def publish_message(message_string, attributes)
           message = build_message(message_string, attributes)
-          messageIdFuture = @pubsub.publish(message)
-          setup_callback(message_string, messageIdFuture)
+          @pubsub.publish(message)
         end
 
         # Sets up the Google pubsub client.
@@ -75,12 +73,6 @@ module LogStash
         end
 
         private
-
-        def setup_callback(message_string, messageIdFuture)
-          callback = LogStash::Outputs::Pubsub::MessageFutureCallback.new message_string, @logger
-
-          com.google.api.core.ApiFutures.addCallback(messageIdFuture, callback)
-        end
 
         def construct_headers
           gem_name = 'logstash-output-google_pubsub'

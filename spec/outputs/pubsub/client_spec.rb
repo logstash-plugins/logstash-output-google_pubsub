@@ -72,10 +72,6 @@ describe LogStash::Outputs::Pubsub::Client do
   end
 
   describe '#publish_message' do
-    before(:each) do
-      allow(com.google.api.core.ApiFutures).to receive(:addCallback)
-    end
-
     it 'builds a message with passed in attributes' do
       allow(subject).to receive(:build_message).and_return(double('message'))
       expect(subject).to receive(:build_message).with('foo', {'a'=>'b'})
@@ -85,12 +81,6 @@ describe LogStash::Outputs::Pubsub::Client do
 
     it 'publishes the message' do
       expect(api_client).to receive(:publish)
-
-      subject.publish_message 'foo', {'a' => 'b'}
-    end
-
-    it 'creates a callback' do
-      expect(com.google.api.core.ApiFutures).to receive(:addCallback)
 
       subject.publish_message 'foo', {'a' => 'b'}
     end
