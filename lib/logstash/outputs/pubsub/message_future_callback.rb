@@ -3,6 +3,8 @@ module LogStash
     module Pubsub
       # Implements ApiFutureCallback<String>
       class MessageFutureCallback
+        include com.google.api.core.ApiFutureCallback
+
         def initialize(message_body, logger)
           @message_body = message_body
           @logger = logger
