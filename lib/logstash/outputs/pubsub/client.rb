@@ -72,7 +72,7 @@ module LogStash
              .setBatchingSettings(batch_settings)
 
           if use_emulator? emulator_host_port
-            channel = ManagedChannelBuilder.forTarget(emulator_host_port).build()
+            channel = ManagedChannelBuilder.forTarget(emulator_host_port).usePlaintext().build()
             channelProvider = com.google.api.gax.rpc.FixedTransportChannelProvider.create(com.google.api.gax.grpc.GrpcTransportChannel.create(channel))
             builder = builder.setChannelProvider(channelProvider)
           end
