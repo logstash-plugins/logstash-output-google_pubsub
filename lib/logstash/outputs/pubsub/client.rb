@@ -1,6 +1,7 @@
 require 'java'
 require 'logstash-output-google_pubsub_jars.rb'
 require 'logstash/outputs/pubsub/message_future_callback'
+java_import "io.grpc.ManagedChannelBuilder"
 
 module LogStash
   module Outputs
@@ -8,10 +9,10 @@ module LogStash
 
       # A wrapper around PubSub's Java API.
       class Client
-        def initialize(json_key_file, topic_name, batch_settings, logger, client=nil)
+        def initialize(json_key_file, emulator_host_port, topic_name, batch_settings, logger, client=nil)
           @logger = logger
 
-          @pubsub = client || initialize_google_client(json_key_file, topic_name, batch_settings)
+          @pubsub = client || initialize_google_client(json_key_file, emulator_host_port, topic_name, batch_settings)
         end
 
         # Creates a Java BatchSettings object given user-defined thresholds.
@@ -48,24 +49,35 @@ module LogStash
         # Sets up the Google pubsub client.
         # It's unlikely this is needed out of initialize, but it's left public
         # for the purposes of mocking.
-        def initialize_google_client(json_key_file, topic_name, batch_settings)
+        def initialize_google_client(json_key_file, emulator_host_port, topic_name, batch_settings)
           @logger.info("Initializing Google API client on #{topic_name} key: #{json_key_file}")
 
-          if use_default_credential? json_key_file
-            credentials = com.google.cloud.pubsub.v1.TopicAdminSettings.defaultCredentialsProviderBuilder().build()
+          if use_emulator? emulator_host_port
+            credentials = com.google.api.gax.core.NoCredentialsProvider.create
           else
-            raise_key_file_error(json_key_file)
+            if use_default_credential? json_key_file
+              credentials = com.google.cloud.pubsub.v1.TopicAdminSettings.defaultCredentialsProviderBuilder().build()
+            else
+              raise_key_file_error(json_key_file)
 
-            key_file = java.io.FileInputStream.new(json_key_file)
-            sac = com.google.auth.oauth2.ServiceAccountCredentials.fromStream(key_file)
-            credentials = com.google.api.gax.core.FixedCredentialsProvider.create(sac)
+              key_file = java.io.FileInputStream.new(json_key_file)
+              sac = com.google.auth.oauth2.ServiceAccountCredentials.fromStream(key_file)
+              credentials = com.google.api.gax.core.FixedCredentialsProvider.create(sac)
+            end
           end
 
-          com.google.cloud.pubsub.v1.Publisher.newBuilder(topic_name)
+          builder = com.google.cloud.pubsub.v1.Publisher.newBuilder(topic_name)
              .setCredentialsProvider(credentials)
              .setHeaderProvider(construct_headers)
              .setBatchingSettings(batch_settings)
-             .build
+
+          if use_emulator? emulator_host_port
+            channel = ManagedChannelBuilder.forTarget(emulator_host_port).build()
+            channelProvider = com.google.api.gax.rpc.FixedTransportChannelProvider.create(com.google.api.gax.grpc.GrpcTransportChannel.create(channel))
+            builder = builder.setChannelProvider(channelProvider)
+          end
+
+          builder.build
         end
 
         # Schedules immediate publishing of any outstanding messages and waits
@@ -87,6 +99,10 @@ module LogStash
           user_agent = "Elastic/#{gem_name}"
 
           com.google.api.gax.rpc.FixedHeaderProvider.create('User-Agent', user_agent)
+        end
+
+        def use_emulator?(emulator_host_port)
+          !(emulator_host_port.nil? || emulator_host_port == '')
         end
 
         def use_default_credential?(key_file)

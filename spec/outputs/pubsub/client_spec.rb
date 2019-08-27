@@ -19,8 +19,20 @@ describe LogStash::Outputs::Pubsub::Client do
   let(:api_client) { spy('api-client') }
   let(:batch_settings) { double('api-client') }
 
-  subject { LogStash::Outputs::Pubsub::Client.new(nil, nil, batch_settings, logger, api_client) }
+  subject { LogStash::Outputs::Pubsub::Client.new(nil, nil, nil, batch_settings, logger, api_client) }
 
+  describe '#new' do
+    it 'can create client with the emulatorl' do
+      allow(logger).to receive(:info)
+
+      client = subject.initialize_google_client(nil, "localhost:8080", "topic", LogStash::Outputs::Pubsub::Client.build_batch_settings(
+          1,
+          1,
+          1
+      ))
+      expect(client.getTopicNameString).to eq('topic')
+    end
+  end
 
   describe '#build_message' do
     it 'creates a Java PubsubMessage' do
