@@ -22,7 +22,7 @@ describe LogStash::Outputs::Pubsub::Client do
   subject { LogStash::Outputs::Pubsub::Client.new(nil, nil, nil, batch_settings, logger, api_client) }
 
   describe '#new' do
-    it 'can create client with the emulatorl' do
+    it 'can create client with the emulator' do
       allow(logger).to receive(:info)
 
       client = subject.initialize_google_client(nil, "localhost:8080", "topic", LogStash::Outputs::Pubsub::Client.build_batch_settings(
