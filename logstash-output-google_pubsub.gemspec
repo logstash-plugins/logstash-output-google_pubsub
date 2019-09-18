@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-output-google_pubsub'
-  s.version       = '1.0.1'
+  s.version       = '1.0.2'
   s.licenses      = ['Apache-2.0']
   s.summary       = 'Emit output messages to Google Pubsub topic.'
   s.description   = 'This gem is a Logstash output plugin to be installed on top of the Logstash'\
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'logstash-devutils', '~> 1.3'
 
   # JARs
-  s.add_development_dependency 'jar-dependencies', '~> 0.3.4'
+  s.add_development_dependency 'jar-dependencies', '~> 0.4.0'
 
   s.platform = 'java'
 end
