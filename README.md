@@ -1,5 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/logstash-output-google_pubsub.svg)](https://badge.fury.io/rb/logstash-output-google_pubsub)
-[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-output-google_pubsub.svg)](https://travis-ci.org/logstash-plugins/logstash-output-google_pubsub)
+[![Travis Build Status](https://travis-ci.com/logstash-plugins/logstash-output-google_pubsub.svg)](https://travis-ci.com/logstash-plugins/logstash-output-google_pubsub)
 
 
 # Logstash Output Google Pubsub
