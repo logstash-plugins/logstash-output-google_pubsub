@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-output-google_pubsub'
-  s.version       = '1.0.2'
+  s.version       = ::File.read('version').split("\n").first
   s.licenses      = ['Apache-2.0']
   s.summary       = 'Emit output messages to Google Pubsub topic.'
   s.description   = 'This gem is a Logstash output plugin to be installed on top of the Logstash'\
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.metadata = { 'logstash_plugin' => 'true', 'logstash_group' => 'output' }
 
   # Gem dependencies
+  s.add_runtime_dependency 'logstash-core', '>= 8.2.0'
   s.add_runtime_dependency 'logstash-codec-json', '~> 3.0'
   s.add_runtime_dependency 'logstash-codec-plain', '~> 3.0'
   s.add_runtime_dependency 'logstash-core-plugin-api', '>= 1.60', '<= 2.99'
