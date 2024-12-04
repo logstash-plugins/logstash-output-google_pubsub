@@ -1,3 +1,6 @@
+## Unreleased
+ - Removed `jar-dependencies` dependency [#31](https://github.com/logstash-plugins/logstash-output-google_pubsub/pull/31)
+
 ## 1.2.0
  - Updated Google PubSub client library [#29](https://github.com/logstash-plugins/logstash-output-google_pubsub/pull/29)
 
