@@ -11,6 +11,9 @@ class LogStash::Outputs::GooglePubsub < LogStash::Outputs::Base
   # Google Cloud Project ID (name, not number)
   config :project_id, validate: :string, required: true
 
+  # Google Cloud Emulator Host/Port
+  config :emulator_host_port, validate: :string, required: false
+
   # Google Cloud Pub/Sub Topic, expected to exist before the plugin starts
   config :topic, validate: :string, required: true
 
@@ -47,6 +50,7 @@ class LogStash::Outputs::GooglePubsub < LogStash::Outputs::Base
 
     @pubsub = LogStash::Outputs::Pubsub::Client.new(
         @json_key_file,
+        @emulator_host_port,
         full_topic,
         batch_settings,
         @logger
