@@ -16,8 +16,10 @@ repositories {
     mavenCentral()
 }
 
+def googleCloudBomVersion = '26.79.0'
+
 dependencies {
-    implementation platform('com.google.cloud:libraries-bom:26.79.0')
+    implementation platform("com.google.cloud:libraries-bom:${googleCloudBomVersion}")
     implementation 'com.google.cloud:google-cloud-pubsub'
 }
 

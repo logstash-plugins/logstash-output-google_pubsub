@@ -1,6 +1,6 @@
 ## 1.2.2
  - Fixed no class found issues due to gRPC dependency mismatch caused by re-packaging [#35](https://github.com/logstash-plugins/logstash-output-google_pubsub/issues/35)
- - Updated google-cloud-pubsub client library from 1.124.1 to 1.150.0 and aligned gRPC (1.76.3) and protobuf (4.33.2) dependency versions
+ - Adopted Google Cloud BOM (`libraries-bom:26.79.0`) for dependency management, replacing manual version constraints
 
 ## 1.2.1
  - Re-packaging the plugin [#33](https://github.com/logstash-plugins/logstash-output-google_pubsub/pull/33)
