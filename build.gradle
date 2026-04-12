@@ -16,28 +16,31 @@ repositories {
     mavenCentral()
 }
 
-def grpcVersion = '1.76.3'
-
 dependencies {
-    constraints {
-        implementation('com.google.protobuf:protobuf-java:4.33.2')
-        implementation('com.google.protobuf:protobuf-java-util:4.33.2')
-        implementation("io.grpc:grpc-netty-shaded:${grpcVersion}")
-        implementation("io.grpc:grpc-api:${grpcVersion}")
-        implementation("io.grpc:grpc-core:${grpcVersion}")
-        implementation("io.grpc:grpc-context:${grpcVersion}")
-        implementation("io.grpc:grpc-stub:${grpcVersion}")
-        implementation("io.grpc:grpc-protobuf:${grpcVersion}")
-        implementation("io.grpc:grpc-protobuf-lite:${grpcVersion}")
-        implementation("io.grpc:grpc-alts:${grpcVersion}")
-        implementation("io.grpc:grpc-auth:${grpcVersion}")
-        implementation("io.grpc:grpc-grpclb:${grpcVersion}")
-        implementation("io.grpc:grpc-googleapis:${grpcVersion}")
-        implementation("io.grpc:grpc-services:${grpcVersion}")
-        implementation("io.grpc:grpc-xds:${grpcVersion}")
-        implementation("io.grpc:grpc-util:${grpcVersion}")
+    implementation platform('com.google.cloud:libraries-bom:26.79.0')
+    implementation 'com.google.cloud:google-cloud-pubsub'
+}
+
+task verifyGrpcVersionConsistency {
+    description = 'Verifies all gRPC modules resolve to the same version'
+    doLast {
+        def grpcVersions = [:] as TreeMap
+        configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+            def id = artifact.moduleVersion.id
+            if (id.group == 'io.grpc') {
+                grpcVersions[id.name] = id.version
+            }
+        }
+        if (grpcVersions.isEmpty()) {
+            throw new GradleException("No io.grpc modules found on runtimeClasspath")
+        }
+        def uniqueVersions = grpcVersions.values().toSet()
+        if (uniqueVersions.size() > 1) {
+            def report = grpcVersions.collect { name, ver -> "  ${name}: ${ver}" }.join('\n')
+            throw new GradleException("gRPC version mismatch detected!\n${report}")
+        }
+        logger.lifecycle("All ${grpcVersions.size()} gRPC modules resolve to version: ${uniqueVersions.first()}")
     }
-    implementation "com.google.cloud:google-cloud-pubsub:1.150.0"
 }
 
 task generateGemJarRequiresFile {
@@ -84,4 +87,4 @@ task vendor {
     }
 }
 
-vendor.dependsOn(jar, generateGemJarRequiresFile)
+vendor.dependsOn(jar, generateGemJarRequiresFile, verifyGrpcVersionConsistency)
