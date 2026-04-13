@@ -1,5 +1,5 @@
 ## 1.2.2
- - Fixed no class found issues due to gRPC dependency mismatch caused by re-packaging [#35](https://github.com/logstash-plugins/logstash-output-google_pubsub/issues/35)
+ - Fixed no class found issues due to gRPC dependency mismatch caused by re-packaging [#36](https://github.com/logstash-plugins/logstash-output-google_pubsub/issues/36)
  - Adopted Google Cloud BOM (`libraries-bom:26.79.0`) for dependency management, replacing manual version constraints
 
 ## 1.2.1
