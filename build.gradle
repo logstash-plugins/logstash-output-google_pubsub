@@ -120,3 +120,7 @@ task vendor {
 }
 
 vendor.dependsOn(jar, generateGemJarRequiresFile, checkDependencyAlignment)
+
+clean {
+    delete 'vendor/jar-dependencies'
+}
