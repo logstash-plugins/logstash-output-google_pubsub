@@ -49,6 +49,15 @@ describe 'GooglePubsub output integration', :integration do
     fake.requests.flat_map { |req| req.get_messages_list.to_a }
   end
 
+  it 'loads the Publisher class without NoClassDefFoundError (regression for issue #35)' do
+    srv = FakePubsubServer.new(expected_requests: 0)
+    pub = srv.build_publisher(topic, LogStash::Outputs::Pubsub::Client.build_batch_settings(1_000_000, 1, 1))
+    expect(pub).to be_a(Java::ComGoogleCloudPubsubV1::Publisher)
+    pub.shutdown
+  ensure
+    srv&.stop
+  end
+
   it 'publishes an event end-to-end through the real Publisher' do
     output.multi_receive([LogStash::Event.new('key' => 'value')])
 
