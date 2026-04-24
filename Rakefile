@@ -17,3 +17,13 @@ task :clean do
   end
 end
 
+require "rspec/core/rake_task"
+
+namespace :spec do
+  desc "Run integration specs (uses in-process gRPC fake, no emulator needed)"
+  RSpec::Core::RakeTask.new(:integration) do |t|
+    t.pattern = "spec/integration/**/*_spec.rb"
+    t.rspec_opts = "--tag integration"
+  end
+end
+
