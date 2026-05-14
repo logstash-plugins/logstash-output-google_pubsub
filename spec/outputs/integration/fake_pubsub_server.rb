@@ -8,14 +8,6 @@
 # generated PublisherGrpc stub, because only the protobuf message types
 # (proto-google-cloud-pubsub-v1) and not the grpc stub jar
 # (grpc-google-cloud-pubsub-v1) are on the plugin's runtime classpath.
-#
-# Rationale:
-#   - Issue #35 (NoClassDefFoundError in v1.2.1) showed the mock-only specs
-#     never exercised the real Publisher code path.
-#   - PR #19 (open since 2019) proposed an `emulator_host_port` production
-#     config for this same goal; this helper achieves equivalent coverage
-#     without changing the plugin's public API, using the existing
-#     `client=nil` constructor seam in lib/logstash/outputs/pubsub/client.rb.
 
 require 'java'
 require 'logstash-output-google_pubsub_jars'
@@ -28,26 +20,32 @@ java_import 'io.grpc.protobuf.ProtoUtils'
 java_import 'io.grpc.stub.ServerCalls'
 
 class FakePubsubServer
-  # Implements io.grpc.stub.ServerCalls.UnaryMethod for the Publish RPC.
-  # Runs on a gRPC server thread — uses concurrent collections and a latch
-  # so assertions on the main thread can await a known request count.
   class PublishHandler
     include Java::IoGrpcStub::ServerCalls::UnaryMethod
 
-    attr_reader :requests, :latch
+    attr_reader :received
 
-    def initialize(expected_requests)
-      @requests = java.util.concurrent.ConcurrentLinkedQueue.new
-      @latch    = java.util.concurrent.CountDownLatch.new(expected_requests)
+    def initialize
+      @received = java.util.concurrent.ConcurrentLinkedQueue.new
+      @ready    = java.util.concurrent.LinkedBlockingQueue.new
+      @counter  = java.util.concurrent.atomic.AtomicLong.new(0)
     end
 
     def invoke(request, response_observer)
-      @requests.add(request)
-      ids = (0...request.get_messages_count).map { |i| "fake-id-#{@requests.size}-#{i}" }
-      response = com.google.pubsub.v1.PublishResponse.newBuilder.addAllMessageIds(ids).build
-      response_observer.onNext(response)
-      response_observer.onCompleted
-      @latch.count_down
+      @received.add(request)
+      begin
+        n   = @counter.incrementAndGet
+        ids = (0...request.get_messages_count).map { |i| "fake-id-#{n}-#{i}" }
+        response = com.google.pubsub.v1.PublishResponse.newBuilder.addAllMessageIds(ids).build
+        response_observer.onNext(response)
+        response_observer.onCompleted
+      ensure
+        @ready.put(request)
+      end
+    end
+
+    def poll_ready(timeout_s)
+      @ready.poll(timeout_s, java.util.concurrent.TimeUnit::SECONDS)
     end
   end
 
@@ -58,9 +56,9 @@ class FakePubsubServer
     .setResponseMarshaller(ProtoUtils.marshaller(com.google.pubsub.v1.PublishResponse.getDefaultInstance))
     .build
 
-  def initialize(expected_requests: 1)
+  def initialize
     @name    = "fake-pubsub-#{java.util.UUID.randomUUID}"
-    @handler = PublishHandler.new(expected_requests)
+    @handler = PublishHandler.new
 
     service = ServerServiceDefinition.builder('google.pubsub.v1.Publisher')
                 .addMethod(PUBLISH_METHOD, ServerCalls.asyncUnaryCall(@handler))
@@ -91,11 +89,12 @@ class FakePubsubServer
   end
 
   def requests
-    @handler.requests.to_a
+    @handler.received.to_a
   end
 
-  def await_requests(seconds = 5)
-    @handler.latch.await(seconds, java.util.concurrent.TimeUnit::SECONDS)
+  # Blocks until the next RPC arrives, or returns nil after timeout.
+  def await_request(timeout_s = 5)
+    @handler.poll_ready(timeout_s)
   end
 
   def stop

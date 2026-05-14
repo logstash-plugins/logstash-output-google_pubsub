@@ -3,13 +3,8 @@ require 'logstash/devutils/rspec/spec_helper'
 require 'logstash/outputs/google_pubsub'
 require 'logstash/outputs/pubsub/client'
 require 'logstash/event'
-require_relative '../support/fake_pubsub_server'
+require_relative 'fake_pubsub_server'
 
-# Integration specs. Exercise the real com.google.cloud.pubsub.v1.Publisher
-# against an in-process gRPC fake. Complement, do not replace, the unit
-# specs in spec/outputs/ which use doubles.
-#
-# Run with: bundle exec rspec spec/integration --tag integration
 describe 'GooglePubsub output integration', :integration do
   let(:topic)   { 'projects/test-project/topics/test-topic' }
   let(:config)  { {
@@ -27,7 +22,7 @@ describe 'GooglePubsub output integration', :integration do
     LogStash::Outputs::Pubsub::Client.build_batch_settings(1_000_000, 1, 1)
   }
 
-  let!(:fake)      { FakePubsubServer.new(expected_requests: 1) }
+  let(:fake)       { FakePubsubServer.new }
   let(:publisher)  { fake.build_publisher(topic, flush_now_settings) }
   let(:logger)     { double('logger').as_null_object }
   let(:client)     { LogStash::Outputs::Pubsub::Client.new(nil, topic, flush_now_settings, logger, publisher) }
@@ -45,24 +40,19 @@ describe 'GooglePubsub output integration', :integration do
 
   after(:each) { fake.stop }
 
-  def published_messages
-    fake.requests.flat_map { |req| req.get_messages_list.to_a }
-  end
-
   it 'loads the Publisher class without NoClassDefFoundError (regression for issue #35)' do
-    srv = FakePubsubServer.new(expected_requests: 0)
-    pub = srv.build_publisher(topic, LogStash::Outputs::Pubsub::Client.build_batch_settings(1_000_000, 1, 1))
+    pub = fake.build_publisher(topic, flush_now_settings)
     expect(pub).to be_a(Java::ComGoogleCloudPubsubV1::Publisher)
     pub.shutdown
-  ensure
-    srv&.stop
+    pub.awaitTermination(5, java.util.concurrent.TimeUnit::SECONDS)
   end
 
   it 'publishes an event end-to-end through the real Publisher' do
     output.multi_receive([LogStash::Event.new('key' => 'value')])
 
-    expect(fake.await_requests).to be(true), 'timed out waiting for publish request'
-    msgs = published_messages
+    req = fake.await_request
+    expect(req).not_to be_nil, 'timed out waiting for publish request'
+    msgs = req.get_messages_list.to_a
     expect(msgs.size).to eq(1)
     expect(msgs.first.get_data.to_string_utf8).to include('"key":"value"')
   end
@@ -70,28 +60,24 @@ describe 'GooglePubsub output integration', :integration do
   it 'passes per-event attributes through to the wire (regression for issue #20)' do
     output.multi_receive([LogStash::Event.new('key' => 'value')])
 
-    expect(fake.await_requests).to be(true)
-    attrs = published_messages.first.get_attributes_map
-    expect(attrs.get('env')).to eq('test')
+    req = fake.await_request
+    expect(req).not_to be_nil
+    expect(req.get_messages_list.first.get_attributes_map.get('env')).to eq('test')
   end
 
   it 'drains pending events on shutdown (regression for issue #26)' do
     # Batch threshold high enough that nothing flushes naturally within
     # the test window — only shutdown() can get these messages through.
-    lingering = LogStash::Outputs::Pubsub::Client.build_batch_settings(1_000_000, 60, 10)
-    fake_drain = FakePubsubServer.new(expected_requests: 1)
-    drain_pub  = fake_drain.build_publisher(topic, lingering)
+    lingering  = LogStash::Outputs::Pubsub::Client.build_batch_settings(1_000_000, 60, 10)
+    drain_pub  = fake.build_publisher(topic, lingering)
     drain_cli  = LogStash::Outputs::Pubsub::Client.new(nil, topic, lingering, logger, drain_pub)
 
     3.times { |i| drain_cli.publish_message({ 'n' => i }.to_json, {}) }
     drain_cli.shutdown
+    drain_pub.awaitTermination(5, java.util.concurrent.TimeUnit::SECONDS)
 
-    begin
-      expect(fake_drain.await_requests(10)).to be(true), 'shutdown did not flush pending messages'
-      msgs = fake_drain.requests.flat_map { |r| r.get_messages_list.to_a }
-      expect(msgs.size).to eq(3)
-    ensure
-      fake_drain.stop
-    end
+    req = fake.await_request(10)
+    expect(req).not_to be_nil, 'shutdown did not flush pending messages'
+    expect(req.get_messages_list.size).to eq(3)
   end
 end

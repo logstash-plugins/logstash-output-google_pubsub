@@ -11,14 +11,13 @@ For more information about contributing, see the [CONTRIBUTING](https://github.c
 ## Running the tests
 
 ```sh
-./gradlew vendor                 # vendor the Java dependencies once
+./gradlew vendor                          # vendor the Java dependencies once
 bundle install
-bundle exec rspec                # unit specs (default; integration excluded)
-bundle exec rake spec:integration # end-to-end specs against an in-process gRPC fake
+bundle exec rspec spec --tag ~integration # unit specs
+bundle exec rspec spec --tag integration  # integration specs (in-process gRPC fake)
 ```
 
 The integration specs spin up an in-process `io.grpc` server that speaks the
 Pub/Sub publisher protocol, so no emulator, Docker, or GCP project is required.
-They exercise the real `com.google.cloud.pubsub.v1.Publisher` and would have
-caught regressions such as the gRPC class-loading mismatch in v1.2.1 (see
-issue #35).
+They exercise the real `com.google.cloud.pubsub.v1.Publisher` and catch
+regressions such as the gRPC class-loading mismatches (see #35).
