@@ -1,5 +1,6 @@
 [![Gem Version](https://badge.fury.io/rb/logstash-output-google_pubsub.svg)](https://badge.fury.io/rb/logstash-output-google_pubsub)
-[![Travis Build Status](https://travis-ci.com/logstash-plugins/logstash-output-google_pubsub.svg)](https://travis-ci.com/logstash-plugins/logstash-output-google_pubsub)
+[![Unit Tests](https://github.com/logstash-plugins/logstash-output-google_pubsub/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/logstash-plugins/logstash-output-google_pubsub/actions/workflows/unit-tests.yml)
+[![Integration Tests](https://github.com/logstash-plugins/logstash-output-google_pubsub/actions/workflows/integration-tests.yml/badge.svg?branch=main)](https://github.com/logstash-plugins/logstash-output-google_pubsub/actions/workflows/integration-tests.yml)
 
 
 # Logstash Output Google Pubsub
